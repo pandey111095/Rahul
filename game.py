@@ -50,11 +50,16 @@ def disp_message(text):
 	game_loop()
 def crash():
 	disp_message("You crashed..!!!")
-
-def button(msg,x,y,w,h,inact_col,act_col):
+ 
+def button(msg,x,y,w,h,inact_col,act_col,action=None):
 	mouse=pygame.mouse.get_pos()
+	click=pygame.mouse.get_pressed()
+		
 	if((x+w>mouse[0]>x) and (y+h>mouse[1]>y)):
 		pygame.draw.rect(gameDisplay,act_col,(x,y,w,h))
+		if click[0]==1 and action!=None:
+			action()
+				
 	else:
 		pygame.draw.rect(gameDisplay,inact_col,(x,y,w,h))
 
@@ -63,6 +68,9 @@ def button(msg,x,y,w,h,inact_col,act_col):
 	textRect.center=((x+(w/2)),(y+(h/2)))
 	gameDisplay.blit(textSurf,textRect)
 
+def quit_gaame():
+	pygame.quit()
+	quit()
 
 def game_intro():
 	intro=True
@@ -77,8 +85,8 @@ def game_intro():
 		TextRect.center=((disp_width/2),(disp_height/2))
 		gameDisplay.blit(TextSurf,TextRect)
 
-		button("GO!",150,450,100,50,bright_green,green)
-		button("QUIT !",550,450,100,50,red,bright_red)
+		button("GO!",150,450,100,50,bright_green,green,game_loop)
+		button("QUIT !",550,450,100,50,red,bright_red,quit_gaame)
 		
 		
 		pygame.display.update()
