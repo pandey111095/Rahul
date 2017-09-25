@@ -2,7 +2,11 @@ import pygame
 import time
 import random
 
+pygame.mixer.pre_init(44100, 16, 2, 4096)
 pygame.init()
+
+#crash_sound=pygame.mixer.Sound("crash.mp3")
+pygame.mixer.music.load("piri_piri.mp3")
 
 disp_width=800
 disp_height=600
@@ -18,12 +22,16 @@ blue=(0,0,255)
 car_width=68
 car_height=68
 
+pause=False
+
 gameDisplay=pygame.display.set_mode((disp_width,disp_height))
 pygame.display.set_caption("Race")
 
 clock=pygame.time.Clock()
 
 carImg=pygame.image.load('red.jpeg')
+
+pygame.display.set_icon(carImg)
 
 def thing_dodged(count):
 	font=pygame.font.SysFont(None,25)
@@ -36,6 +44,7 @@ def things(thingx,thingy,thingw,thingh,color):
 
 def car(x,y):
 	gameDisplay.blit(carImg,(x,y))
+
 def text_object(text,font):
 	textSurface=font.render(text,True,blue)
 	return textSurface,textSurface.get_rect()
@@ -48,8 +57,28 @@ def disp_message(text):
 	pygame.display.update()
 	time.sleep(2)
 	game_loop()
+
 def crash():
-	disp_message("You crashed..!!!")
+	pygame.mixer.music.stop()
+	#pygame.mixer.Sound.play(crash_sound)
+
+	largeText=pygame.font.Font("freesansbold.ttf",80)
+	TextSurf,TextRect=text_object("Crashed !!",largeText)
+	TextRect.center=((disp_width/2),(disp_height/2))
+	gameDisplay.blit(TextSurf,TextRect)
+
+	while True:
+		for event in pygame.event.get():
+			if event.type==pygame.QUIT:
+				pygame.quit()
+				quit()
+		#gameDisplay.fill(white)
+		button("Play Again ",150,450,120,50,bright_green,green,game_loop)
+		button("QUIT !",550,450,100,50,red,bright_red,quit_gaame)
+		
+		
+		pygame.display.update()
+		clock.tick(15)
  
 def button(msg,x,y,w,h,inact_col,act_col,action=None):
 	mouse=pygame.mouse.get_pos()
@@ -71,6 +100,34 @@ def button(msg,x,y,w,h,inact_col,act_col,action=None):
 def quit_gaame():
 	pygame.quit()
 	quit()
+
+def unpaused():
+	global pause
+	pause=False
+	pygame.mixer.music.unpause()
+
+def paused():
+	pygame.mixer.music.pause()	
+	
+	largeText=pygame.font.Font("freesansbold.ttf",80)
+	TextSurf,TextRect=text_object("Paused",largeText)
+	TextRect.center=((disp_width/2),(disp_height/2))
+	gameDisplay.blit(TextSurf,TextRect)
+
+	while pause:
+		for event in pygame.event.get():
+			if event.type==pygame.QUIT:
+				pygame.quit()
+				quit()
+		#gameDisplay.fill(white)
+		
+
+		button("Continue ",150,450,100,50,bright_green,green,unpaused)
+		button("QUIT !",550,450,100,50,red,bright_red,quit_gaame)
+		
+		
+		pygame.display.update()
+		clock.tick(15)
 
 def game_intro():
 	intro=True
@@ -94,7 +151,9 @@ def game_intro():
 
 
 def game_loop():
-
+	
+	global pause
+	pygame.mixer.music.play(-1)
 	x=disp_width*0.45
 	y=disp_height*0.8
 
@@ -121,6 +180,9 @@ def game_loop():
 					x_change=-5
 				elif event.key==pygame.K_RIGHT:
 					x_change=5
+				elif event.key==pygame.K_p:
+					pause=True
+					paused()
 			if event.type==pygame.KEYUP:
 				if event.key==pygame.K_LEFT or event.key==pygame.K_RIGHT:
 					x_change=0
